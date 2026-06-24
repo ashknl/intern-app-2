@@ -28,3 +28,4 @@ dist-electron
 .agents/*
 data/*
 release/*
+.env
