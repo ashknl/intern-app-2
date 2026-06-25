@@ -9,6 +9,8 @@ const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const bcryptjs = require('bcryptjs')
 const xlsx = require('node-xlsx')
+const PizZip = require('pizzip')
+const Docxtemplater = require('docxtemplater')
 
 // The built directory structure
 //
@@ -194,6 +196,80 @@ ipcMain.handle('excel:write', async (_event, args: {
     fs.writeFileSync(args.filePath, buffer)
 
     return { success: true }
+  } catch (err) {
+    return { success: false, error: String(err) }
+  }
+})
+
+// --- Document generation ---
+
+function uniqueFilename(folderPath: string, baseName: string): string {
+  let filePath = path.join(folderPath, `${baseName}.docx`)
+  if (!fs.existsSync(filePath)) return filePath
+
+  let counter = 2
+  while (true) {
+    filePath = path.join(folderPath, `${baseName}_${counter}.docx`)
+    if (!fs.existsSync(filePath)) return filePath
+    counter++
+  }
+}
+
+ipcMain.handle('document:generate', async (_event, args: { rows: Record<string, string>[] }) => {
+  try {
+    const templatePath = path.join(process.env.APP_ROOT!, 'templates', 'dp_extension.docx')
+
+    if (!fs.existsSync(templatePath)) {
+      return { success: false, error: `Template not found: ${templatePath}` }
+    }
+
+    const folderResult = await dialog.showOpenDialog(win!, {
+      title: 'Select Output Folder',
+      properties: ['openDirectory'],
+    })
+
+    if (folderResult.canceled || folderResult.filePaths.length === 0) {
+      return { success: false, error: 'Folder selection cancelled' }
+    }
+
+    const folderPath = folderResult.filePaths[0]
+    const templateContent = fs.readFileSync(templatePath)
+    const errors: string[] = []
+    let generated = 0
+
+    for (const row of args.rows) {
+      try {
+        const baseName = `TPC-II_Brief_${row.so_no ?? 'output'}`
+        const filePath = uniqueFilename(folderPath, baseName)
+
+        const zip = new PizZip(templateContent)
+        const doc = new Docxtemplater(zip, {
+          paragraphLoop: true,
+          linebreaks: true,
+        })
+
+        doc.setData(row)
+        doc.render()
+
+        const buffer = doc.getZip().generate({
+          type: 'nodebuffer',
+          compression: 'DEFLATE',
+        })
+
+        fs.writeFileSync(filePath, buffer)
+        generated++
+      } catch (err) {
+        errors.push(`Row ${row.so_no ?? 'unknown'}: ${String(err)}`)
+      }
+    }
+
+    return {
+      success: true,
+      folder: folderPath,
+      generated,
+      failed: errors.length,
+      errors: errors.length > 0 ? errors : undefined,
+    }
   } catch (err) {
     return { success: false, error: String(err) }
   }

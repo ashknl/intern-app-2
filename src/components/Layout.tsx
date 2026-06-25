@@ -59,7 +59,7 @@ export default function Layout() {
                 <header className="flex h-12 items-center px-4">
                     <SidebarTrigger />
                 </header>
-                <main className="flex-1 p-6 overflow-auto">
+                <main className="flex-1 p-6 overflow-y-auto overflow-x-hidden">
                     <Outlet />
                 </main>
             </SidebarInset>

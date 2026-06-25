@@ -9,6 +9,7 @@ import {
   ArrowRight,
   Send,
   Circle,
+  FileOutput,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -176,6 +177,33 @@ export default function DpExtension() {
     setTimeout(() => setFormSuccess(null), 3000)
   }
 
+  const [generating, setGenerating] = useState(false)
+  const [genStatus, setGenStatus] = useState<string | null>(null)
+
+  const liveRows = rows.filter((_, i) => !deletedIndices.includes(i))
+
+  const handleGenerateDocument = async () => {
+    if (liveRows.length === 0) return
+    setGenStatus(null)
+    setGenerating(true)
+    try {
+      const result = await window.ipcRenderer.invoke('document:generate', {
+        rows: liveRows,
+      })
+      if (!result.success) {
+        setGenStatus(result.error ?? 'Failed to generate documents')
+      } else {
+        setGenStatus(
+          `Generated ${result.generated} document${result.generated !== 1 ? 's' : ''} to ${result.folder}${result.failed > 0 ? ` (${result.failed} failed)` : ''}`
+        )
+      }
+    } catch (err) {
+      setGenStatus(String(err))
+    } finally {
+      setGenerating(false)
+    }
+  }
+
   const currentFields = STAGE_FIELDS[currentStage] ?? []
 
   return (
@@ -231,25 +259,17 @@ export default function DpExtension() {
                   <Table>
                     <TableHeader>
                       <TableRow>
+                        <TableHead className="w-12" />
                         {headers.map((header) => (
                           <TableHead key={header} className="whitespace-nowrap">
                             {header}
                           </TableHead>
                         ))}
-                        <TableHead className="w-12" />
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {displayedRows.map(({ row, index, deleted }) => (
                         <TableRow key={index} className={deleted ? 'opacity-40' : ''}>
-                          {headers.map((header) => (
-                            <TableCell
-                              key={header}
-                              className={`whitespace-nowrap ${deleted ? 'line-through' : ''}`}
-                            >
-                              {row[header]}
-                            </TableCell>
-                          ))}
                           <TableCell>
                             {deleted ? (
                               <Button
@@ -271,6 +291,14 @@ export default function DpExtension() {
                               </Button>
                             )}
                           </TableCell>
+                          {headers.map((header) => (
+                            <TableCell
+                              key={header}
+                              className={`whitespace-nowrap ${deleted ? 'line-through' : ''}`}
+                            >
+                              {row[header]}
+                            </TableCell>
+                          ))}
                         </TableRow>
                       ))}
                     </TableBody>
@@ -352,6 +380,37 @@ export default function DpExtension() {
           </div>
         </CardContent>
       </Card>
+
+      {rows.length > 0 && (
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>Generate Documents</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col items-center gap-4">
+            <p className="text-muted-foreground text-center">
+              Generate a Word document for each row. Select an output folder to save all documents.
+            </p>
+            <Button
+              onClick={handleGenerateDocument}
+              disabled={generating || liveRows.length === 0}
+            >
+              <FileOutput className="mr-2" size={16} />
+              {generating ? 'Generating...' : 'Generate All Documents'}
+            </Button>
+            {genStatus && (
+              <p
+                className={`text-sm text-center ${
+                  genStatus.startsWith('Generated')
+                    ? 'text-green-600 dark:text-green-400'
+                    : 'text-destructive'
+                }`}
+              >
+                {genStatus}
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }
