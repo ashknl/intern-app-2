@@ -26,6 +26,5 @@ dist-electron
 .opencode/*
 .claude/*
 .agents/*
-data/*
 release/*
 .env

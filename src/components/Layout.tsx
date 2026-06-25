@@ -13,10 +13,11 @@ import {
     SidebarProvider,
     SidebarTrigger,
 } from './ui/sidebar';
-import { House } from 'lucide-react';
+import { House, FileSpreadsheet } from 'lucide-react';
 
 const navItems = [
     { to: '/' as const, label: 'Home', icon: House },
+    { to: '/dp-extension' as const, label: 'DP Extension', icon: FileSpreadsheet },
 ];
 
 export default function Layout() {

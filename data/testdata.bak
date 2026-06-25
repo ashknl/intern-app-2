@@ -1,0 +1,32 @@
+Variable,Iteration,Value,Notes
+so_no,,ADL0295,
+doc_date,,14-05-2026,
+gemc_no,,511687703533400,
+gemc_date,,29-01-2025,
+qty,,"48,075",
+supplier_name,,"M/S MANISHA RUBBER ENTERPRISES, MUMBAI.","PO dues row uses a shorter form (""M/s MANISHA RUBBER ENTERPRISES"", no location) - same variable can't hold both"
+item_name,,PRESSURE PAD RUBBER ASSY (A & B),
+option_clause_ptc,,50,
+item_nomenclature,,"PRESSURE PAD RUBBER ASSY TYPE (A&B) PRESSURE PAD TYPE ""A"" ASSEMBLY PART ITX 60 SA DC-35916-A.DT.21.02.95 AND PRESSURE PAD TYPE ""B"" ASSEMBLY PART ITX-61SADC 35916 A, DTD.21.02.95 TO SPECN. CQA(A) 1817(T), DC-37096-A DT.06.03.2007 RESPECTIVELY (TO BE SUPPLIED BOTH THE ITEM AS A SET, (EACH SET CONTAINS PRESSURE PAD TYPE-A ASSEMBLY =03 NOS & PRESSURE PAD TYPE B ASSEMBLY = 01 NO).",
+p_number,,191-93 & 198,
+sap_order_no,,4500001870,
+item_code,,6174130915,
+sap_item_code,,12001029,
+unit_rate,,470.82,
+total_cost,,"2,26,34,671.50",
+psd,,"11,31,733.00",
+end_use,,Required for assembly of Mine A/T 4D ND (User Section: Unit-10).,
+open_qty,,"6,075","Reused in ""Total PO dues"" line - only correct if there is exactly one supplier row"
+delivery_date,,30-07-2026,
+unit_basic_price,,399.00,
+Qty,,"48,075","Capital-Q duplicate of `qty` - case-sensitive mismatch in template, same value"
+staggers.index,1,1,"Inside {#staggers} loop, not a flat template var"
+staggers.ordinal,1,st,Inside {#staggers} loop
+staggers.quantity,1,"24,000",Inside {#staggers} loop
+staggers.start_date,1,30-01-2025,Inside {#staggers} loop
+staggers.end_date,1,28-06-2025,Inside {#staggers} loop
+staggers.index,2,2,Inside {#staggers} loop
+staggers.ordinal,2,nd,Inside {#staggers} loop
+staggers.quantity,2,"24,075",Inside {#staggers} loop
+staggers.start_date,2,29-06-2025,Inside {#staggers} loop
+staggers.end_date,2,26-09-2025,Inside {#staggers} loop
