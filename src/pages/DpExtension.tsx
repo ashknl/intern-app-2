@@ -27,16 +27,17 @@ import {
   useExcelStore,
   STAGE_FIELDS,
   FIELD_LABELS,
+  TOTAL_STAGES,
 } from '@/store/excelStore'
 
 function StepIndicator({ currentStage }: { currentStage: number }) {
   return (
     <div className="flex items-center gap-3">
       <span className="text-sm text-muted-foreground">
-        Step {currentStage} of 4
+        Step {currentStage} of {TOTAL_STAGES}
       </span>
       <div className="flex items-center gap-1">
-        {[1, 2, 3, 4].map((step) => (
+        {Array.from({ length: TOTAL_STAGES }, (_, i) => i + 1).map((step) => (
           <Circle
             key={step}
             size={10}
@@ -366,7 +367,7 @@ export default function DpExtension() {
               Back
             </Button>
 
-            {currentStage < 4 ? (
+            {currentStage < TOTAL_STAGES ? (
               <Button onClick={handleNextStage}>
                 Next
                 <ArrowRight className="ml-1" size={14} />

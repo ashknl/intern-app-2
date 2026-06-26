@@ -162,13 +162,13 @@ ipcMain.handle('excel:read', async (_event, args: { filePath: string }) => {
       return { success: false, error: 'File has no data rows' }
     }
 
-    const headers = data[0].map((h) => String(h ?? ''))
+    const headers = data[0].map((h) => String(h ?? '').trim())
     const rows: Record<string, string>[] = []
 
     for (let i = 1; i < data.length; i++) {
       const row: Record<string, string> = {}
       for (let j = 0; j < headers.length; j++) {
-        row[headers[j]] = String(data[i]?.[j] ?? '')
+        row[headers[j]] = String(data[i]?.[j] ?? '').trim()
       }
       rows.push(row)
     }
@@ -208,6 +208,7 @@ function uniqueFilename(folderPath: string, baseName: string): string {
   if (!fs.existsSync(filePath)) return filePath
 
   let counter = 2
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     filePath = path.join(folderPath, `${baseName}_${counter}.docx`)
     if (!fs.existsSync(filePath)) return filePath
@@ -217,7 +218,11 @@ function uniqueFilename(folderPath: string, baseName: string): string {
 
 ipcMain.handle('document:generate', async (_event, args: { rows: Record<string, string>[] }) => {
   try {
-    const templatePath = path.join(process.env.APP_ROOT!, 'templates', 'dp_extension.docx')
+    const templatePath = (() => {
+      const prodPath = path.join(__dirname, 'templates', 'dp_extension.docx')
+      const devPath = path.join(process.env.APP_ROOT!, 'src', 'templates', 'dp_extension.docx')
+      return fs.existsSync(prodPath) ? prodPath : devPath
+    })()
 
     if (!fs.existsSync(templatePath)) {
       return { success: false, error: `Template not found: ${templatePath}` }
